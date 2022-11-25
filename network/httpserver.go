@@ -3,11 +3,12 @@ package network
 import (
 	"crypto/tls"
 	"fmt"
+	"io"
 	stdLog "log"
 	"net/http"
 	"time"
 
-	"github.com/sirupsen/logrus"
+	"github.com/allens-dev/plumbing/logging"
 )
 
 const (
@@ -17,14 +18,14 @@ const (
 )
 
 type ServerParameters struct {
-	Log          *logrus.Entry
+	Log          *logging.JSONLogger
 	Port         string
 	Mux          http.Handler
 	Certificates []tls.Certificate
 }
 
 type Server struct {
-	Log *logrus.Entry
+	Log *logging.JSONLogger
 	*http.Server
 }
 
@@ -47,7 +48,7 @@ func HTTPServer(parameters *ServerParameters) *Server {
 					tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 				},
 			},
-			ErrorLog: stdLog.New(parameters.Log.WriterLevel(logrus.ErrorLevel), "", 0),
+			ErrorLog: stdLog.New(io.Discard, "", 0),
 		},
 	}
 }

@@ -3,9 +3,9 @@ package network
 import (
 	"crypto/tls"
 	"fmt"
-	"io"
 	stdLog "log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/allens-dev/plumbing/logging"
@@ -48,7 +48,7 @@ func HTTPServer(parameters *ServerParameters) *Server {
 					tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 				},
 			},
-			ErrorLog: stdLog.New(io.Discard, "", 0),
+			ErrorLog: stdLog.New(os.Stderr, "", 0),
 		},
 	}
 }

@@ -1,3 +1,4 @@
+// Package network provide some basic network capabilities
 package network
 
 import (
@@ -17,6 +18,7 @@ const (
 	writeTimeout      = 30 * time.Second
 )
 
+// ServerParameters provides a way to configure your HTTP Server.
 type ServerParameters struct {
 	Log          *logging.JSONLogger
 	Port         string
@@ -24,11 +26,13 @@ type ServerParameters struct {
 	Certificates []tls.Certificate
 }
 
+// Server provides a HTTP Server with a log attached to it.
 type Server struct {
 	Log *logging.JSONLogger
 	*http.Server
 }
 
+// HTTPServer returns a preconfigured HTTP Server.
 func HTTPServer(parameters *ServerParameters) *Server {
 	return &Server{
 		Log: parameters.Log,

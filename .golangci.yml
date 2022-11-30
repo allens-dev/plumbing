@@ -1,0 +1,86 @@
+linter-settings:
+  cyclop:
+    max-complexity: 15
+    package-average: 0.0
+    skip-tests: true
+  dupl:
+    threshhold: 100
+  funlen:
+    lines: 100
+    statements: 50
+  goconst:
+    min-lin: 2
+    min-occurences: 2
+  gocritic:
+    enable-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disalbed-checks:
+      - hugeParam
+      - paramTypeCombine
+      - rangeValCopy
+      - typeDefFirst
+  gocycle:
+    min-complexity: 15
+  golint:
+    min-confidence: 0.8
+  govet:
+    check-shaodwing: true
+  lll:
+    line-length: 120
+  maligned:
+    suggest-new: true
+
+linters:
+  enable-all: true
+  disable:
+  - contextcheck
+  - deadcode
+  - durationcheck
+  - varcheck
+  - exhaustivestruct
+  - exhaustruct
+  - gci
+  - goerr113
+  - godox
+  - gofumpt
+  - paralleltest
+  - varnamelen
+  - golint
+  - ifshort
+  - interfacer
+  - ireturn
+  - maligned
+  - nonamedreturns
+  - rowserrcheck
+  - tagliatelle
+  - wastedassign
+  - wrapcheck
+  - nosnakecase
+  - structcheck
+  - scopelint
+  - sqlclosecheck
+
+run:
+  timeout: 5m
+
+issues:
+  max-same-issues: 0
+  exclude-use-default: false
+  exclude-rules:
+    - path: _test/.go
+      linters:
+        - bodyclose
+        - containedctx
+        - cyclop
+        - dupl
+        - errcheck
+        - errchkjson
+        - forcedtypeassert
+        - funlen
+        - gocyclo
+        - gosec
+        - var-naming

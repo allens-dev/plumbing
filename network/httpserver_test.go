@@ -15,7 +15,7 @@ func TestHTTPServer(t *testing.T) {
 		parameters *network.ServerParameters
 	}
 
-	log := logging.NewJSONLogger("alert-receiver")
+	log := logging.NewJSONLogger("alert-receiver", "")
 
 	port := "9091"
 

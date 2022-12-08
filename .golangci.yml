@@ -30,7 +30,7 @@ linter-settings:
   govet:
     check-shaodwing: true
   lll:
-    line-length: 120
+    line-length: 140
   maligned:
     suggest-new: true
 
@@ -48,6 +48,7 @@ linters:
   - godox
   - gofumpt
   - paralleltest
+  - forcetypeassert
   - varnamelen
   - golint
   - ifshort

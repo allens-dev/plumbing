@@ -3,24 +3,27 @@ package logging_test
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 
 	"github.com/allens-dev/plumbing/logging"
 )
 
+const testLoggerName = "test-logging"
+
 func TestNewJSONLogger(t *testing.T) {
 	type args struct {
-		name string
+		name       string
+		timeformat string
 	}
 
-	loggerName := "test-logging"
+	loggerName := testLoggerName
 
-	testWant := logging.NewJSONLogger(loggerName)
+	testWant := logging.NewJSONLogger(loggerName, "")
 
 	testArgs := args{
-		name: loggerName,
+		name:       loggerName,
+		timeformat: "",
 	}
 
 	tests := []struct {
@@ -32,22 +35,57 @@ func TestNewJSONLogger(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := logging.NewJSONLogger(tt.args.name); !reflect.DeepEqual(got, tt.want) {
+			if got := logging.NewJSONLogger(tt.args.name, tt.args.timeformat); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewJSONLogger() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestJSONLogger_Error(t *testing.T) {
-	type fields struct {
-		Name   string
-		Writer *os.File
+func TestNewEntry(t *testing.T) {
+	type args struct {
+		logger logging.Logger
 	}
 
+	loggerName := testLoggerName
+
+	testLogger := logging.NewJSONLogger(loggerName, "")
+
+	testArgs := args{
+		logger: testLogger,
+	}
+
+	testWant := logging.NewEntry(testLogger)
+
+	tests := []struct {
+		name string
+		args args
+		want *logging.Entry
+	}{
+		{name: "test-new-entry", args: testArgs, want: testWant},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := logging.NewEntry(tt.args.logger); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewEntry() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestEntry_Error(t *testing.T) {
+	type fields struct {
+		Logger logging.Logger
+		Data   []interface{}
+	}
+
+	loggerName := testLoggerName
+
+	testLogger := logging.NewJSONLogger(loggerName, "")
+
 	testFields := fields{
-		Name:   "test-logger",
-		Writer: os.Stdout,
+		Logger: testLogger,
+		Data:   make([]interface{}, 0),
 	}
 
 	type args struct {
@@ -57,8 +95,8 @@ func TestJSONLogger_Error(t *testing.T) {
 	}
 
 	testArgs := args{
-		err: fmt.Errorf("test error"),
-		msg: "error during test",
+		err: fmt.Errorf("this is an error"),
+		msg: "this is why we error",
 		kvs: make([]interface{}, 0),
 	}
 
@@ -67,28 +105,47 @@ func TestJSONLogger_Error(t *testing.T) {
 		fields fields
 		args   args
 	}{
-		{name: "test-error-log", fields: testFields, args: testArgs},
+		{name: "test-error-write", fields: testFields, args: testArgs},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := logging.JSONLogger{
-				Name:   tt.fields.Name,
-				Writer: tt.fields.Writer,
+			e := &logging.Entry{
+				Logger: tt.fields.Logger,
+				Data:   tt.fields.Data,
 			}
-			l.Error(tt.args.err, tt.args.msg, tt.args.kvs...)
+			e.Error(tt.args.err, tt.args.msg, tt.args.kvs...)
 		})
 	}
 }
 
-func TestJSONLogger_Info(t *testing.T) {
+func TestEntry_Info(t *testing.T) {
 	type fields struct {
-		Name   string
-		Writer *os.File
+		Logger logging.Logger
+		Data   []interface{}
 	}
 
+	loggerName := testLoggerName
+
+	testLogger := logging.NewJSONLogger(loggerName, "")
+
+	testLogger2 := logging.NewTabLogger(loggerName, "")
+
+	testLogger3 := logging.NewPlainLogger(loggerName, "")
+
 	testFields := fields{
-		Name:   "test-logger",
-		Writer: os.Stdout,
+		Logger: testLogger,
+		Data:   make([]interface{}, 0),
+	}
+
+	testFields2 := fields{
+		Logger: testLogger2,
+		Data:   make([]interface{}, 0),
+	}
+
+	testFields3 := fields{
+		Logger: testLogger3,
+		Data:   make([]interface{}, 0),
 	}
 
 	type args struct {
@@ -98,12 +155,12 @@ func TestJSONLogger_Info(t *testing.T) {
 	testKVS := make([]interface{}, 0)
 	testKVS = append(testKVS, "starting", "up and reading for tests")
 
-	testKVS2 := make([]interface{}, 0)
-	testKVS2 = append(testKVS2, "starting")
-
 	testArgs := args{
 		kvs: testKVS,
 	}
+
+	testKVS2 := make([]interface{}, 0)
+	testKVS2 = append(testKVS2, "starting")
 
 	testArgs2 := args{
 		kvs: testKVS2,
@@ -114,16 +171,20 @@ func TestJSONLogger_Info(t *testing.T) {
 		fields fields
 		args   args
 	}{
-		{name: "test-info-logging", fields: testFields, args: testArgs},
-		{name: "test-info-logging-2", fields: testFields, args: testArgs2},
+		{name: "test-error-write", fields: testFields, args: testArgs},
+		{name: "test-error-write", fields: testFields, args: testArgs2},
+		{name: "test-error-write", fields: testFields2, args: testArgs},
+		{name: "test-error-write", fields: testFields2, args: testArgs2},
+		{name: "test-error-write", fields: testFields3, args: testArgs},
+		{name: "test-error-write", fields: testFields3, args: testArgs2},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			l := logging.JSONLogger{
-				Name:   tt.fields.Name,
-				Writer: tt.fields.Writer,
+			e := &logging.Entry{
+				Logger: tt.fields.Logger,
+				Data:   tt.fields.Data,
 			}
-			l.Info(tt.args.kvs...)
+			e.Info(tt.args.kvs...)
 		})
 	}
 }

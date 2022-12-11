@@ -20,7 +20,7 @@ const (
 
 // ServerParameters provides a way to configure your HTTP Server.
 type ServerParameters struct {
-	Log          *logging.JSONLogger
+	Log          *logging.Logger
 	Port         string
 	Mux          http.Handler
 	Certificates []tls.Certificate
@@ -28,7 +28,7 @@ type ServerParameters struct {
 
 // Server provides a HTTP Server with a log attached to it.
 type Server struct {
-	Log *logging.JSONLogger
+	Log *logging.Logger
 	*http.Server
 }
 
